@@ -1,0 +1,3 @@
+---
+
+rabbitmq_admin_pass: ${RABBITMQ_PASSWORD}

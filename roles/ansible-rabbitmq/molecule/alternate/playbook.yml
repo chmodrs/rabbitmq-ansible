@@ -1,0 +1,19 @@
+---
+- hosts: rabbitmq
+  remote_user: molecule
+  become: true
+  any_errors_fatal: true
+  pre_tasks:
+    - import_tasks: pre_tasks.yml
+      vars:
+        nb_master2check: 0
+        nb_slave2check: 0
+  post_tasks:
+    - import_tasks: post_tasks.yml
+  roles:
+    - role: ansible-role-erlang
+      vars:
+        erlang_series: "{{ lookup('env','ERLANG_SERIES') }}"
+    - role: ansible-role-rabbitmq
+      vars:
+        rabbitmq_series: "{{ lookup('env','RABBITMQ_SERIES') }}"

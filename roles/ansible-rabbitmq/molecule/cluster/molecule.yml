@@ -1,0 +1,98 @@
+---
+dependency:
+  name: galaxy
+  options:
+    role-file: molecule/resources/requirements.yml
+driver:
+  name: docker
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+platforms:
+  - name: ansible-role-rabbitmq-ubuntu-bionic-cluster
+    groups:
+      - rabbitmq
+      - rabbitmq-master
+    image: ubuntu:bionic
+    command: "/lib/systemd/systemd"
+    docker_host: "${DOCKER_HOST:-unix://var/run/docker.sock}"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /tmp
+      - /run
+    capabilities:
+      - SYS_ADMIN
+    networks:
+      - name: ansible-role-rabbitmq-cluster
+  - name: ansible-role-rabbitmq-debian-stretch-cluster
+    groups:
+      - rabbitmq
+      - rabbitmq-slave
+    image: debian:stretch
+    command: "/lib/systemd/systemd"
+    docker_host: "${DOCKER_HOST:-unix://var/run/docker.sock}"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /tmp
+      - /run
+    capabilities:
+      - SYS_ADMIN
+    networks:
+      - name: ansible-role-rabbitmq-cluster
+  - name: ansible-role-rabbitmq-centos-7-cluster
+    groups:
+      - rabbitmq
+      - rabbitmq-slave
+    image: centos:7
+    command: "/usr/sbin/init"
+    docker_host: "${DOCKER_HOST:-unix://var/run/docker.sock}"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /tmp
+      - /run
+    capabilities:
+      - SYS_ADMIN
+    networks:
+      - name: ansible-role-rabbitmq-cluster
+  - name: ansible-role-rabbitmq-ubuntu-bionic-2-cluster
+    groups:
+      - rabbitmq-master-1
+    image: ubuntu:bionic
+    command: "/lib/systemd/systemd"
+    docker_host: "${DOCKER_HOST:-unix://var/run/docker.sock}"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /tmp
+      - /run
+    capabilities:
+      - SYS_ADMIN
+    networks:
+      - name: ansible-role-rabbitmq-cluster
+  - name: ansible-role-rabbitmq-ubuntu-bionic-3-cluster
+    groups:
+      - rabbitmq-slave-1
+    image: ubuntu:bionic
+    command: "/lib/systemd/systemd"
+    docker_host: "${DOCKER_HOST:-unix://var/run/docker.sock}"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /tmp
+      - /run
+    capabilities:
+      - SYS_ADMIN
+    networks:
+      - name: ansible-role-rabbitmq-cluster
+provisioner:
+  name: ansible
+  playbooks:
+    create: create.yml
+    converge: playbook.yml
+    destroy: destroy.yml
+scenario:
+  name: cluster
